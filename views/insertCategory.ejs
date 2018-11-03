@@ -1,0 +1,20 @@
+<% include ./partials/header %>
+<body>
+    <div class=container>
+    <form action='/home/<%=currentUser._id%>/newCategory' method="POST">
+        <div class="form-control">
+            <label for=categoryName>Category Name:</label>
+            <input type="text" name="categoryName">
+        </div>
+        <div>
+            <% categoryList.forEach(function(category){%>
+            <ul class="list-group">
+              <li class="list-group-item"><%=category.name%></li>
+            </ul>
+            <% }); %>
+        <div>
+        <input class="btn btn-danger" type="submit">
+        </form>
+    </div>
+</body>
+<% include ./partials/footer %>

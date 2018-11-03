@@ -1,0 +1,29 @@
+<% include ./partials/header %>
+<div class ="container">
+    <div class="row">
+    <form action="/home/<%=currentUser._id%>/new"  method="POST">
+        <div class="form-control">
+            <label for="amount">Amount:</label>
+            <input type="number" name="amount" placeholder="Enter Amount">
+        </div>
+        <div class="form-group">
+            <label for="SelectCat">Category:</label>
+            <select class="form-control" id="SelectCat" name="category">
+                <% for(var i =0; i<categoryList.length; i++){ %>
+                    <option value=<%=categoryList[i].name%>> <%=categoryList[i].name %></option>
+               <% } %>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="username">Category:</label>
+            <input type="text" name="username" value=<%=currentUser.username%> >
+        </div>
+        <div class="form-group">
+            <label for="description">Category:</label>
+            <input type="text" name="description" placeholder="description"><br><br>
+        </div>
+        <button class="btn btn-danger" type="submit">Submit</button>
+    </form>
+    </div>
+</div>
+<% include ./partials/footer %>    
