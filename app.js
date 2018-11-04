@@ -317,8 +317,67 @@ app.get("/home/:id/history",function(req, res) {
 
 // render category page
 app.get('/home/:id/category',function(req, res) {
-    
-})
+    Category.find({'user.id':req.params.id}, function(err,catList){
+        if(err){
+            req.flash("error","Something Went Wrong");
+            res.redirect("/home");
+        }else{
+            Transaction.find({'userid' : req.params.id},function(err, transList) {
+                if(err){
+                    req.flash("error","No transacetions Found for this User");
+                } else{
+                    var YesterdaysDateISOend = moment().subtract(1,'days').endOf('days').toISOString();
+                    var TodaysDateISOend = moment().endOf('days').toISOString();
+                    var TodaysDateISOstart = moment().startOf('days').toISOString();
+                    var categoryAmountToday = [];
+                    var categoryNameToday = [];
+                    var categoryAmountTodayPercent=[];
+                    var categoryAmountTotalToday=0;
+                    var categoryAmountTotalYesterday=0;
+                    var categoryAmountYesterdayPercent=[];
+                    var categoryAmountYesterday = [];
+                    var categoryNameYesterday = [];
+                    for(var i =0;i<catList.length;i++){
+                        categoryNameToday.push(catList[i].name);
+                        categoryNameYesterday.push(catList[i].name);
+                        categoryAmountToday.push(0);
+                        categoryAmountYesterday.push(0);
+                    }
+                    
+                     for(var trans in transList){
+                        for(var cat in catList){
+     
+                                if((TodaysDateISOend >= moment(transList[trans].date).toISOString()) && (moment(transList[trans].date).toISOString() > YesterdaysDateISOend)){
+                                    categoryAmountToday[cat]+=transList[trans].amount;
+                                    categoryAmountTotalToday+=transList[trans].amount;
+                                }
+                        
+                                if(YesterdaysDateISOend > moment(transList[trans].date).toISOString()){
+                                    categoryAmountYesterday[cat] += transList[trans].amount;
+                                    categoryAmountTotalYesterday+=transList[trans].amount;
+                                }
+                            }
+                        }
+                        
+                        // for(var i =0;i<categoryAmountToday.length;i++){
+                        //     var x = (categoryAmountToday[i] / categoryAmountTotalToday)*100
+                        //     categoryAmountTodayPercent.push(x)
+                        //     var y = (categoryAmountYesterday[i] / categoryAmountTotalYesterday)*100
+                        //     categoryAmountYesterdayPercent.push(y)
+                        // }
+                        
+                        res.render('category',{
+                            'categoryAmountToday':categoryAmountToday,
+                            'categoryAmountYesterday':categoryAmountYesterday,
+                            'categoryNameToday':categoryNameToday,
+                            'categoryNameYesterday':categoryNameYesterday
+                        });
+                }
+            });
+        }
+    });
+});
+
 
 // Server listen
 app.listen(process.env.PORT, process.env.IP, function(){

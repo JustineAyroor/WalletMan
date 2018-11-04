@@ -16,4 +16,7 @@ table,thead{
     font-family: Audiowide;
 }
 
-    
+.rounded{
+    width: 80%;
+    height: 80%;
+}
