@@ -1,5 +1,7 @@
 <% include ./partials/header %>
 <body>
+    <br><br>
+    <center>
     <div class=container>
     <form action='/home/<%=currentUser._id%>/newCategory' method="POST">
         <div class="form-control">
@@ -9,12 +11,13 @@
         <div>
             <% categoryList.forEach(function(category){%>
             <ul class="list-group">
-              <li class="list-group-item"><%=category.name%></li>
+              <li class="list-group-item list-group-item-danger"><%=category.name%></li>
             </ul>
             <% }); %>
         <div>
         <input class="btn btn-danger" type="submit">
         </form>
     </div>
+    </center>
 </body>
 <% include ./partials/footer %>

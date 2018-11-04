@@ -17,6 +17,7 @@ mongoose.connect('mongodb://localhost:27017/users',{useNewUrlParser:true});
 //bodyParser Configuration
 app.use(bodyParser.urlencoded({extended: true}));
 app.set('view engine','ejs');
+app.use(express.static(__dirname + "/public"));
 app.use(flash());
 
 // PASSPORT CONFIGURATION
@@ -45,19 +46,23 @@ app.get('/',(req,res)=>{
      res.render('landing');
 })
 
+// Render login page
 app.get('/login',(req,res)=>{
     res.render('login');
 })
 
+// Render registration page
 app.get('/register',(req,res)=>{
     res.render('register')
 })
 
+// Login user
 app.post('/login',passport.authenticate('local',{
     successRedirect:'/home/',
     failureRedirect:'/login'
 }),(req,res)=>{});
 
+// Register new user
 app.post('/register', (req, res) => {
     var newUser = new User({
         'username':req.body.username,
@@ -67,6 +72,19 @@ app.post('/register', (req, res) => {
             res.redirect('/register');
         }else{
             passport.authenticate('local')(req,res,()=>{
+                var basicCategories = ["Food","Shopping","Entertainment","Bills"]
+                basicCategories.forEach(function(category) {
+                    Category.create({
+                        'name':category,
+                        'user.id':user._id
+                    },function(err, transaction) {
+                        if(err){
+                            console.log(err)
+                        }else{
+                            
+                        }
+                    })
+                })
                 res.redirect('/home/'+user._id);
             });
         }
@@ -85,13 +103,8 @@ app.get('/home/',(req,res)=>{
     res.redirect("/home/" + user_id);
 });
 
+// Render home page
 app.get('/home/:id', (req, res) => {
-    
-    // 2018-11-03T07:56:44.193Z
-    // new Date("11/20/2014 04:11") 
-    
-    // var event = new Date('August 19, 1975 23:15:30');
-    //Transaction.find().where('user.id').equals(req.params.id).exec(function(err, transactionList){
     Transaction.find({
         'user.id' :req.params.id,
         'date'    : {$gte:new Date().getMilliseconds()}},
@@ -107,12 +120,11 @@ app.get('/home/:id', (req, res) => {
                     req.flash("error", "Something Went Wrong");
                     res.redirect("/");
                 }else{
-                    
-                    console.log(transactionList)
                     var maxAmount = 0;
                     var maxCategoryName = "Null";
                     var categoryAmount = [];
                     var categoryName = [];
+                    var totalAmount = 0;
                     
                     for(var i =0;i<categoryList.length;i++){
                         categoryName.push(categoryList[i].name);
@@ -125,6 +137,7 @@ app.get('/home/:id', (req, res) => {
                                 categoryAmount[cat]+=transactionList[trans].amount
                             }
                         }
+                        totalAmount+=transactionList[trans].amount
                     }
                     
                     for(var cat in categoryAmount){
@@ -134,30 +147,23 @@ app.get('/home/:id', (req, res) => {
                         }
                     }
                     
-                    
-                //console.log(transactionList);
-                //console.log(categoryList);
-                //console.log(maxCategoryName); // Not getting Object
-                //console.log(maxAmount); // Not getting Object
-                console.log(categoryName);
-                console.log(categoryAmount);// Not getting Object
-                
                 res.render('home', {
                         transactionList:transactionList,
                         categoryList:categoryList,
                         maxCategoryName:maxCategoryName,
                         maxAmount:maxAmount,
                         categoryName:categoryName,
-                        categoryAmount:categoryAmount
+                        categoryAmount:categoryAmount,
+                        totalAmount:totalAmount
                     });
                 }
-            })
+            });
         }
-    })
-})
+    });
+});
             
 
-
+// Render form for new transaction
 app.get("/home/:id/new", function(req, res) {
     Category.find({'user.id':req.params.id}, function(err, categoryList) {
         if(err){
@@ -168,13 +174,13 @@ app.get("/home/:id/new", function(req, res) {
     });
 });
 
+// Add new transaction
 app.post('/home/:id/new', (req, res) => {
     Category.find({'user.id':req.params.id, 'category.name':req.body.category},function(err,category){
         if(err){
             console.log(err)
             res.send("Error")
         }else{
-            console.log(category)
             Transaction.create({
                 'user.username':req.body.username,
                 'user.id':req.params.id,
@@ -194,16 +200,19 @@ app.post('/home/:id/new', (req, res) => {
     });
 });
 
+// Render page to add new category
 app.get('/home/:id/insertCategory',(req,res)=>{
     Category.find({'user.id':req.params.id},function(err, categoryList) {
         if(err){
-            console.log(err)
+            console.log(err);
         }else{
             res.render('insertCategory',{'categoryList':categoryList});
         }
-    })
+    });
 });
 
+
+// Add new category
 app.post('/home/:id/newCategory',(req,res)=>{
     Category.create({
         'name':req.body.categoryName,
@@ -217,6 +226,9 @@ app.post('/home/:id/newCategory',(req,res)=>{
     });
 });
 
+
+
+// Server listen
 app.listen(process.env.PORT, process.env.IP, function(){
    console.log("The WalletMan Server Has Started!");
 });

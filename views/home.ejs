@@ -7,7 +7,7 @@
             <header class="jumbotron">
                 <div class="container">
                     <h1>Welcome To WalletMan!</h1>
-                        <p>Track Your Daily Expenses Using this simple Web Applicarion!!!</p>
+                        <p>Track Your Daily Expenses Using this simple Web Application!!!</p>
                         <p>
                             <a class="btn btn-primary btn-large" href="/home/<%=currentUser.id%>/new">Add New Transaction</a>
                         </p>
@@ -16,15 +16,16 @@
             </header>
         </div>
         <div class="row justify-content-md-center">
-            <div class="col col-lg-2">
+            <div class="col col-lg-4">
                 1 of 3
+                <h3>Total:<%=totalAmount%></h3>
                 <h3>You spent max on <%=maxCategoryName%> : <%=maxAmount%></h3>
             </div>
-        <div class="col-md-auto">
+        <div class="col-md-4">
             Variable width content
             <canvas id="myChart"></canvas>  
         </div>
-        <div class="col col-lg-2">
+        <div class="col col-lg-4">
             3 of 3
             <br><br>
             <table style= "border: 2px, margin:25px auto">

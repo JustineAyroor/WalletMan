@@ -1,10 +1,10 @@
 <% include ./partials/header %>
-<div class ="container">
+<center><div class ="container">
     <div class="row">
     <form action="/home/<%=currentUser._id%>/new"  method="POST">
         <div class="form-control">
             <label for="amount">Amount:</label>
-            <input type="number" name="amount" placeholder="Enter Amount">
+            <input type="number" name="amount" placeholder="Enter Amount" required>
         </div>
         <div class="form-group">
             <label for="SelectCat">Category:</label>
@@ -25,5 +25,5 @@
         <button class="btn btn-danger" type="submit">Submit</button>
     </form>
     </div>
-</div>
+</div></center>
 <% include ./partials/footer %>    
