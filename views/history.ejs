@@ -14,45 +14,158 @@
         </div>
         <div class="row justify-content-md-center">
         <div class="col-md-6">
-            <div>
-                <button type="button" class="btn btn-success" onclick="drawpie()">Success</button>
-                <button type="button" class="btn btn-danger" onclick="drawbar()">Danger</button>
-            </div>
-            <canvas id="myChart"></canvas>  
+            <canvas id="myBarChart"></canvas>
+            <br><br>
+            <canvas id="myLineChart"></canvas>  
         </div>
         <div class="col col-lg-6">
-            2 of 2
+            <!--<div class="dropdown">-->
+            <!--  <button class="btn btn-secondary dropdown-toggle" type="button" id="timeSpan" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">-->
+            <!--    TimeLine-->
+            <!--  </button>-->
+            <!--  <div class="dropdown-menu" aria-labelledby="dropdownMenu2">-->
+            <!--    <button class="dropdown-item" type="button" value="Today">Today</button>-->
+            <!--    <button class="dropdown-item" type="button" value="Yesterday">Yesterday</button>-->
+            <!--    <button class="dropdown-item" type="button" value="All Time">All Time</button>-->
+            <!--  </div>-->
+            <!--</div>-->
+            <select id="timeSpan" onchange="myFunction()">
+                <option selected disabled hidden>Choose an option</option>
+                <option id="Today" value="Today">Today</option>
+                <option id="Yesterday" value="Yesterday">Yesterday</option>
+                <option id="All Time" value="All Time">All Time</option>
+            </select>
             <br><br>
-            <table style= "border: 2px, margin:25px auto">
-                <tr>
-                    <th>User</th>
-                    <th>Amount</th>
-                    <th>Category</th>
-                    <th>Date</td>
-                </tr>
-                <% allTime.forEach(function(transaction){ %>
-                <tr>     
-                    <td><%=transaction.user.username %></td>       
-                    <td><%=transaction.amount %></td>
-                    <td><%=transaction.category.name %></td>
-                    <td><%=transaction.date %></td>
-                </tr>
-                <% }); %>
-            </table>   
+            <div id='div1'></div>
+            <script>
+                function myFunction(){
+                    var x = document.getElementById("timeSpan").value
+                    if(x==="Today"){
+                        document.getElementById("div1").innerHTML = `<table class="table table-dark">
+                        <tr>
+                            <th>Category</th>
+                            <th>Amount</th>
+                        </tr> 
+                        <% for(var i = 0; i< categoryNameToday.length; i++){%>
+                        <tr>
+                            <td><%=categoryNameToday[i]%></td>
+                            <td><%=categoryAmountToday[i]%></td>
+                        </tr>
+                        <% } %>
+                        </table>`; 
+                        drawForToday();
+                    }
+                    if(x==="Yesterday"){
+                        document.getElementById("div1").innerHTML = `<table class="table table-dark">
+                        <tr>
+                            <th>Category</th>
+                            <th>Amount</th>
+                        </tr> 
+                        <% for(var i = 0; i< categoryNameToday.length; i++){%>
+                        <tr>
+                            <td><%=categoryNameToday[i]%></td>
+                            <td><%=categoryAmountToday[i]%></td>
+                        </tr>
+                        <% } %>
+                        </table>`; 
+                        drawForYesterday();
+                    }
+                }
+                //alert(document.getElementById("timeSpan").value)
+                // if(document.getElementById("timeSpan").value==="Today"){
+                //     document.write("<table style= 'margin:25px auto'><tr><th>Amount</th><th>Category</th></tr></table>");
+                // }
+            </script>
             <br><br>
         </div>
     </div>
-    </div>
+</div>
 <script>
-var ctx = document.getElementById("myChart").getContext('2d');
+var ctx1 = document.getElementById("myBarChart").getContext('2d');
+var ctx2 = document.getElementById("myLineChart").getContext('2d');
+    
+function drawForToday(){
+    var myBarChart = new Chart(ctx1,{
+    type: 'bar',
+    maintainAspectRatio:this.maintainAspectRatio,
+    data : {
+    labels: <%- JSON.stringify(categoryNameToday)%>,
+    datasets: [{
+        label: 'Category',
+        data: [<%=categoryAmountToday%>],
+        backgroundColor: palette('tol', <%=categoryAmount.length%>).map((hex) => '#'+hex)
+    }]
+    },
+    options: {
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero:true
+                }
+            }]
+        }
+    }
+});
 
-function drawbar(){
-var myBarChart = new Chart(ctx,{
+var myLineChart = new Chart(ctx2,{
+    type:"line",
+    data:{
+        labels:<%- JSON.stringify(categoryNameToday) %>,
+        datasets:[{
+            label:"My First Dataset",
+            data:[<%=categoryAmountToday%>],
+            fill:false,
+            borderColor:"rgb(75, 192, 192)",
+            lineTension:0.1
+        }
+    ]},
+});
+}
+function drawForYesterday(){
+    var myBarChart = new Chart(ctx1,{
+    type: 'bar',
+    maintainAspectRatio:this.maintainAspectRatio,
+    data : {
+    labels: <%- JSON.stringify(categoryNameYesterday)%>,
+    datasets: [{
+        label: 'Category',
+        data: [<%=categoryAmountYesterday%>],
+        backgroundColor: palette('tol', <%=categoryAmountYesterday.length%>).map((hex) => '#'+hex)
+    }]
+    },
+    options: {
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero:true
+                }
+            }]
+        }
+    }
+});
+
+var myLineChart = new Chart(ctx2,{
+    "type":"line",
+    "data":{
+        "labels":[<%=categoryNameYesterday%>],
+        "datasets":[{
+            "label":"My First Dataset",
+            "data":[<%=categoryAmountYesterday%>],
+            "fill":false,
+            "borderColor":"rgb(75, 192, 192)",
+            "lineTension":0.1
+        }
+    ]},
+});
+}
+function drawForAll_Time(){
+    var myBarChart = new Chart(ctx1,{
     type: 'bar',
     maintainAspectRatio:this.maintainAspectRatio,
     data : {
     labels: <%- JSON.stringify(categoryName)%>,
     datasets: [{
+        label: 'Category',
         data: [<%=categoryAmount%>],
         backgroundColor: palette('tol', <%=categoryAmount.length%>).map((hex) => '#'+hex)
     }]
@@ -67,21 +180,21 @@ var myBarChart = new Chart(ctx,{
         }
     }
 });
-    
-}
 
-function drawpie(){
-   var myPieChart = new Chart(ctx,{
-    type: 'pie',
-    maintainAspectRatio:this.maintainAspectRatio,
-    data : {
-    datasets: [{
-        data: [<%=categoryAmount%>],
-        backgroundColor: palette('tol', <%=categoryAmount.length%>).map((hex) => '#'+hex)
-    }],
-    labels: <%- JSON.stringify(categoryName)%>,
-    }
-}); 
+var myLineChart = new Chart(ctx2,{
+    "type":"line",
+    "data":{
+        "labels":[<%=categoryName%>],
+        "datasets":[{
+            "label":"My First Dataset",
+            "data":[<%=categoryAmount%>],
+            "fill":false,
+            "borderColor":"rgb(75, 192, 192)",
+            "lineTension":0.1
+        }
+    ]},
+});
+
 }
 </script>
 </body>

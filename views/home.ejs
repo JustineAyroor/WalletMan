@@ -30,17 +30,13 @@
             <br><br>
             <table style= "border: 2px, margin:25px auto">
                 <tr>
-                    <th>User</th>
-                    <th>Amount</th>
                     <th>Category</th>
-                    <th>Date</td>
+                    <th>Amount</th>
                 </tr>
                 <% transactionList.forEach(function(transaction){ %>
                 <tr>     
-                    <td><%=transaction.user.username %></td>       
-                    <td><%=transaction.amount %></td>
                     <td><%=transaction.category.name %></td>
-                    <td><%=transaction.date %></td>
+                    <td><%=transaction.amount %></td>
                 </tr>
                 <% }); %>
             </table>   
@@ -50,9 +46,8 @@
     </div>
 <script>
 var ctx = document.getElementById("myChart").getContext('2d');
-
-var myPieChart = new Chart(ctx,{
-    type: 'pie',
+var myDoughnutChart = new Chart(ctx,{
+    type: 'doughnut',
     maintainAspectRatio:this.maintainAspectRatio,
     data : {
     datasets: [{

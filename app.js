@@ -145,6 +145,7 @@ app.get('/home/:id', function(req, res) {
                         }
                         totalAmount+=transactionList[trans].amount
                     }
+                
                     
                     for(var cat in categoryAmount){
                         if(categoryAmount[cat] > maxAmount ){
@@ -160,7 +161,8 @@ app.get('/home/:id', function(req, res) {
                         maxAmount:maxAmount,
                         categoryName:categoryName,
                         categoryAmount:categoryAmount,
-                        totalAmount:totalAmount
+                        totalAmount:totalAmount,
+                        moment:moment
                     });
                 }
             });
@@ -232,6 +234,7 @@ app.post('/home/:id/newCategory',(req,res)=>{
     });
 });
 
+// render history page
 app.get("/home/:id/history",function(req, res) {
     Transaction.find({'user.id':req.params.id},function(err, transactionList) {
         if(err){
@@ -243,29 +246,69 @@ app.get("/home/:id/history",function(req, res) {
                }else{
                     var categoryAmount = [];
                     var categoryName = [];
-            
+                    var categoryAmountToday = [];
+                    var categoryNameToday = [];
+                    var categoryAmountYesterday = [];
+                    var categoryNameYesterday = [];
+                    var YesterdaysDateISO = moment(moment().subtract(1,'days').toDate(),moment.ISO_8601);
+                    
                     for(var i =0;i<categoryList.length;i++){
                         categoryName.push(categoryList[i].name);
+                        categoryNameToday.push(categoryList[i].name);
                         categoryAmount.push(0);
+                        categoryAmountToday.push(0);
                     }
                     
                     for(var trans in transactionList){
                         for(var cat in categoryList){
                             if(transactionList[trans].category.name===categoryList[cat].name){
                                 categoryAmount[cat]+=transactionList[trans].amount;
+                                categoryAmountToday[cat]+=transactionList[trans].amount;
                             }
                         }
+                        if(transactionList[trans].date === YesterdaysDateISO){
+                            categoryAmountYesterday.push(transactionList[trans].amount)
+                            categoryNameYesterday.push(transactionList[trans].category.name)
+                        }
                     }
-                    res.render('history',{"allTime":transactionList,"categoryAmount":categoryAmount,"categoryName":categoryName});    
+                    
+                    console.log("Categor Names for Today:"+categoryNameToday)
+                    console.log("Category Amount for Today:"+categoryAmountToday)
+                    
+                    // Transaction.create({
+                    //     'user.id':req.params.id,
+                    //     'date':{
+                    //         $gte : moment().subtract(1,'days').startOf('days').toDate(),
+                    //         $lte : moment().subtract(1,'days').endOf('days').toDate()
+                    //     }
+                    // },function(err, transactionYesterdayList) {
+                    //     if(err){
+                    //         console.log(err)
+                    //     }else{
+                    //         for(var trans in transactionYesterdayList){
+                                   
+                    //         }
+                    //             
+                    //     }
+                    // })
+                    res.render('history',{"allTime":transactionList,
+                        "categoryAmount":categoryAmount,
+                        "categoryName":categoryName,
+                        "categoryAmountToday":categoryAmountToday,
+                        "categoryNameToday":categoryNameToday,
+                        "categoryAmountYesterday":categoryAmountYesterday,
+                        "categoryNameYesterday":categoryNameYesterday
+                    });
                 }
             });
         }
     });
 });
 
-app.post("/home/:id/history",function(req,res){
+// render category page
+app.get('/home/:id/category',function(req, res) {
     
-});
+})
 
 // Server listen
 app.listen(process.env.PORT, process.env.IP, function(){
