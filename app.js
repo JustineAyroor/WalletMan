@@ -317,67 +317,77 @@ app.get("/home/:id/history",function(req, res) {
 
 // render category page
 app.get('/home/:id/category',function(req, res) {
-    Category.find({'user.id':req.params.id}, function(err,catList){
+    Transaction.find({'user.id':req.params.id},function(err, transactionList) {
         if(err){
-            req.flash("error","Something Went Wrong");
-            res.redirect("/home");
+            console.log(err)
         }else{
-            Transaction.find({'userid' : req.params.id},function(err, transList) {
-                if(err){
-                    req.flash("error","No transacetions Found for this User");
-                } else{
+            Category.find({'user.id':req.params.id}, function(err,categoryList){
+               if(err){
+                   console.log(err)
+               }else{
+                    var categoryNameTodayRaw = [];
+                    var categoryAmountTodayRaw = [];
+                    var categoryDesTodayRaw=[];
+                    var categoryNameYesterdayRaw = [];
+                    var categoryAmountYesterdayRaw = [];
+                    var categoryDesYesterdayRaw=[];
+                    var categoryAmount = [];
+                    var categoryName = [];
+                    var categoryAmountToday = [];
+                    var categoryNameToday = [];
+                    var categoryAmountYesterday = [];
+                    var categoryNameYesterday = [];
                     var YesterdaysDateISOend = moment().subtract(1,'days').endOf('days').toISOString();
                     var TodaysDateISOend = moment().endOf('days').toISOString();
                     var TodaysDateISOstart = moment().startOf('days').toISOString();
-                    var categoryAmountToday = [];
-                    var categoryNameToday = [];
-                    var categoryAmountTodayPercent=[];
-                    var categoryAmountTotalToday=0;
-                    var categoryAmountTotalYesterday=0;
-                    var categoryAmountYesterdayPercent=[];
-                    var categoryAmountYesterday = [];
-                    var categoryNameYesterday = [];
-                    for(var i =0;i<catList.length;i++){
-                        categoryNameToday.push(catList[i].name);
-                        categoryNameYesterday.push(catList[i].name);
+                    
+                    for(var i =0;i<categoryList.length;i++){
+                        categoryName.push(categoryList[i].name);
+                        categoryNameToday.push(categoryList[i].name);
+                        categoryNameYesterday.push(categoryList[i].name);
+                        categoryAmount.push(0);
                         categoryAmountToday.push(0);
                         categoryAmountYesterday.push(0);
                     }
                     
-                     for(var trans in transList){
-                        for(var cat in catList){
-     
-                                if((TodaysDateISOend >= moment(transList[trans].date).toISOString()) && (moment(transList[trans].date).toISOString() > YesterdaysDateISOend)){
-                                    categoryAmountToday[cat]+=transList[trans].amount;
-                                    categoryAmountTotalToday+=transList[trans].amount;
+                    for(var trans in transactionList){
+                        for(var cat in categoryList){
+                            if(transactionList[trans].category.name===categoryList[cat].name){
+                                categoryAmount[cat]+=transactionList[trans].amount;
+                             
+                                if((TodaysDateISOend >= moment(transactionList[trans].date).toISOString()) && (moment(transactionList[trans].date).toISOString() > YesterdaysDateISOend)){
+                                    categoryAmountToday[cat]+=transactionList[trans].amount
+                                    categoryAmountTodayRaw.push(transactionList[trans].amount)
+                                    categoryNameTodayRaw.push(transactionList[trans].category.name)
+                                    categoryDesTodayRaw.push(transactionList[trans].description)
                                 }
                         
-                                if(YesterdaysDateISOend > moment(transList[trans].date).toISOString()){
-                                    categoryAmountYesterday[cat] += transList[trans].amount;
-                                    categoryAmountTotalYesterday+=transList[trans].amount;
+                                if(YesterdaysDateISOend > moment(transactionList[trans].date).toISOString()){
+                                    categoryAmountYesterday[cat] += transactionList[trans].amount
+                                    categoryAmountYesterdayRaw.push(transactionList[trans].amount)
+                                    categoryNameYesterdayRaw.push(transactionList[trans].category.name)
+                                    categoryDesYesterdayRaw.push(transactionList[trans].description)
                                 }
                             }
                         }
-                        
-                        // for(var i =0;i<categoryAmountToday.length;i++){
-                        //     var x = (categoryAmountToday[i] / categoryAmountTotalToday)*100
-                        //     categoryAmountTodayPercent.push(x)
-                        //     var y = (categoryAmountYesterday[i] / categoryAmountTotalYesterday)*100
-                        //     categoryAmountYesterdayPercent.push(y)
-                        // }
-                        
-                        res.render('category',{
+                    }
+                    
+                    for(var i =0;i<categoryNameYesterday.length;i++){
+                        categoryAmountYesterday.push(0)
+                    }
+                    
+                    res.render('category',{
                             'categoryAmountToday':categoryAmountToday,
                             'categoryAmountYesterday':categoryAmountYesterday,
                             'categoryNameToday':categoryNameToday,
                             'categoryNameYesterday':categoryNameYesterday
-                        });
+                    });
                 }
             });
         }
     });
+                
 });
-
 
 // Server listen
 app.listen(process.env.PORT, process.env.IP, function(){

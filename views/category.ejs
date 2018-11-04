@@ -6,16 +6,16 @@
                     <center><h1>Categorical Comparision <i class="fas fa-hand-holding-usd"></i></h1></center>
                     <center><p>Track Your Daily Expenses Using this Web App</p></center>
                     <center><p>
-                    <a class="btn btn-primary btn-large" href="/home/<%=currentUser.id%>/newCategory">Add New Category</a>
+                    <a class="btn btn-primary btn-large" href="/home/<%=currentUser.id%>/insertCategory">Add New Category</a>
                 </p></center>
             <center><h4 style="color:green">Hello <%=currentUser.username%></h4></center>
         </div>
     </header>
-    <div class="row">
-        <div class="col-md-6">
-            <canvas id="myRadarChart"></canvas>  
-        </div>
+    <center>
+    <div id="radarChart" class="row">
+        <canvas id="myRadarChart"></canvas>
     </div>
+    </center> 
 </div>
 <script>
 var ctx1 = document.getElementById("myRadarChart").getContext('2d');
@@ -24,7 +24,7 @@ var ctx1 = document.getElementById("myRadarChart").getContext('2d');
         data:{
             labels:<%- JSON.stringify(categoryNameToday)%>,
             datasets:[{
-                label:"My First Dataset",
+                label:"My Todays Dataset",
                 data:[<%=categoryAmountToday%>],
                 fill:true,
                 backgroundColor:"rgba(255, 99, 132, 0.2)",
@@ -35,7 +35,7 @@ var ctx1 = document.getElementById("myRadarChart").getContext('2d');
                 pointHoverBorderColor:"rgb(255, 99, 132)"
             },
                 {
-                    label:"My Second Dataset",
+                    label:"My Yesterdays Dataset",
                     data:[<%=categoryAmountYesterday%>],
                     fill:true,
                     backgroundColor:"rgba(54, 162, 235, 0.2)",

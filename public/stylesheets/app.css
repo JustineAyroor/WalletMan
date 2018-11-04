@@ -25,3 +25,12 @@ table,thead{
     width:30%;
     height: 20%
 }
+
+#patch{
+    background-color: lightgreen;
+}
+
+#radarChart{
+    width:70%;
+    height:60%;
+}
