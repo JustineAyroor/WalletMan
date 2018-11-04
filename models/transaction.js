@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 
 var transactionSchema = mongoose.Schema({
-    'date':{ type: Date, default: Date.now },
+    'date':{ type: Date },
     'amount':Number,
     'description': String,
     'user':{

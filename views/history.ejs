@@ -6,27 +6,22 @@
         <div class="container">
             <header class="jumbotron">
                 <div class="container">
-                    <h1>Welcome To WalletMan!</h1>
+                    <h1>View all Your Transaction History On this Page!!</h1>
                         <p>Track Your Daily Expenses Using this simple Web Application!!!</p>
-                        <p>
-                            <a class="btn btn-primary btn-large" href="/home/<%=currentUser.id%>/new">Add New Transaction</a>
-                        </p>
                         <h4>Hello <%=currentUser.username%></h4>
                 </div>
             </header>
         </div>
         <div class="row justify-content-md-center">
-            <div class="col col-lg-4">
-                1 of 3
-                <h3>Total:<%=totalAmount%></h3>
-                <h3>You spent max on <%=maxCategoryName%> : <%=maxAmount%></h3>
+        <div class="col-md-6">
+            <div>
+                <button type="button" class="btn btn-success" onclick="drawpie()">Success</button>
+                <button type="button" class="btn btn-danger" onclick="drawbar()">Danger</button>
             </div>
-        <div class="col-md-4">
-            Variable width content
             <canvas id="myChart"></canvas>  
         </div>
-        <div class="col col-lg-4">
-            3 of 3
+        <div class="col col-lg-6">
+            2 of 2
             <br><br>
             <table style= "border: 2px, margin:25px auto">
                 <tr>
@@ -35,7 +30,7 @@
                     <th>Category</th>
                     <th>Date</td>
                 </tr>
-                <% transactionList.forEach(function(transaction){ %>
+                <% allTime.forEach(function(transaction){ %>
                 <tr>     
                     <td><%=transaction.user.username %></td>       
                     <td><%=transaction.amount %></td>
@@ -51,7 +46,32 @@
 <script>
 var ctx = document.getElementById("myChart").getContext('2d');
 
-var myPieChart = new Chart(ctx,{
+function drawbar(){
+var myBarChart = new Chart(ctx,{
+    type: 'bar',
+    maintainAspectRatio:this.maintainAspectRatio,
+    data : {
+    labels: <%- JSON.stringify(categoryName)%>,
+    datasets: [{
+        data: [<%=categoryAmount%>],
+        backgroundColor: palette('tol', <%=categoryAmount.length%>).map((hex) => '#'+hex)
+    }]
+    },
+    options: {
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero:true
+                }
+            }]
+        }
+    }
+});
+    
+}
+
+function drawpie(){
+   var myPieChart = new Chart(ctx,{
     type: 'pie',
     maintainAspectRatio:this.maintainAspectRatio,
     data : {
@@ -61,7 +81,8 @@ var myPieChart = new Chart(ctx,{
     }],
     labels: <%- JSON.stringify(categoryName)%>,
     }
-});
+}); 
+}
 </script>
 </body>
 <% include ./partials/footer %>

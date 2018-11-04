@@ -1,5 +1,6 @@
 var express         = require('express'),
     app             = express(),
+    moment          = require('moment'),
     bodyParser      = require('body-parser'),
     ejs             = require('ejs'),
     mongoose        = require('mongoose'),
@@ -9,7 +10,7 @@ var express         = require('express'),
     User            = require('./models/user'),
     Transaction     = require('./models/transaction'),
     Category        = require('./models/category'),
-    middlewareObj      = require('./middleware');
+    middleware      =  require('./middleware');
 
 //MongoDB Configuration
 mongoose.connect('mongodb://localhost:27017/users',{useNewUrlParser:true});
@@ -104,10 +105,15 @@ app.get('/home/',(req,res)=>{
 });
 
 // Render home page
-app.get('/home/:id',middlewareObj.isLoggedIn(), function(req, res) {
+//  $gte : moment().utc().startOf('day').toDate(),
+            // $lte : moment().utc().endOf('day').toDate()
+app.get('/home/:id', function(req, res) {
     Transaction.find({
         'user.id' :req.params.id,
-        'date'    : {$gte:new Date().getMilliseconds()}},
+        'date'    : {
+            $gte : moment().startOf('days').toDate(),
+            $lte : moment().endOf('days').toDate()
+        }},
         function(err, transactionList){
         if(err){
             console.log(err);
@@ -164,7 +170,7 @@ app.get('/home/:id',middlewareObj.isLoggedIn(), function(req, res) {
             
 
 // Render form for new transaction
-app.get("/home/:id/new",middlewareObj.isLoggedIn(), function(req, res) {
+app.get("/home/:id/new", function(req, res) {
     Category.find({'user.id':req.params.id}, function(err, categoryList) {
         if(err){
             console.log(err);
@@ -175,7 +181,7 @@ app.get("/home/:id/new",middlewareObj.isLoggedIn(), function(req, res) {
 });
 
 // Add new transaction
-app.post('/home/:id/new', middlewareObj.isLoggedIn(), function(req, res) {
+app.post('/home/:id/new', function(req, res) {
     Category.find({'user.id':req.params.id, 'category.name':req.body.category},function(err,category){
         if(err){
             console.log(err)
@@ -201,7 +207,7 @@ app.post('/home/:id/new', middlewareObj.isLoggedIn(), function(req, res) {
 });
 
 // Render page to add new category
-app.get('/home/:id/insertCategory',middlewareObj.isLoggedIn(),(req,res)=>{
+app.get('/home/:id/insertCategory',(req,res)=>{
     Category.find({'user.id':req.params.id},function(err, categoryList) {
         if(err){
             console.log(err);
@@ -213,7 +219,7 @@ app.get('/home/:id/insertCategory',middlewareObj.isLoggedIn(),(req,res)=>{
 
 
 // Add new category
-app.post('/home/:id/newCategory',middlewareObj.isLoggedIn(),(req,res)=>{
+app.post('/home/:id/newCategory',(req,res)=>{
     Category.create({
         'name':req.body.categoryName,
         'user.id':req.params.id
@@ -226,7 +232,40 @@ app.post('/home/:id/newCategory',middlewareObj.isLoggedIn(),(req,res)=>{
     });
 });
 
+app.get("/home/:id/history",function(req, res) {
+    Transaction.find({'user.id':req.params.id},function(err, transactionList) {
+        if(err){
+            console.log(err)
+        }else{
+            Category.find({'user.id':req.params.id}, function(err,categoryList){
+               if(err){
+                   console.log(err)
+               }else{
+                    var categoryAmount = [];
+                    var categoryName = [];
+            
+                    for(var i =0;i<categoryList.length;i++){
+                        categoryName.push(categoryList[i].name);
+                        categoryAmount.push(0);
+                    }
+                    
+                    for(var trans in transactionList){
+                        for(var cat in categoryList){
+                            if(transactionList[trans].category.name===categoryList[cat].name){
+                                categoryAmount[cat]+=transactionList[trans].amount;
+                            }
+                        }
+                    }
+                    res.render('history',{"allTime":transactionList,"categoryAmount":categoryAmount,"categoryName":categoryName});    
+                }
+            });
+        }
+    });
+});
 
+app.post("/home/:id/history",function(req,res){
+    
+});
 
 // Server listen
 app.listen(process.env.PORT, process.env.IP, function(){
