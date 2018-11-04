@@ -1,9 +1,19 @@
 h1 {
     font-family: 'Spicy Rice', cursive;
-    font-size: 100px;
+    font-size: 60px;
 }
 
-h3 {
+h2,h3,h4,h5,h6 {
     font-family: 'Spicy Rice', cursive;
-    font-size: 50px;
+    font-size: 30px;
 }
+body{
+     font-family: 'Spicy Rice', cursive;
+     background-color: white;
+}
+ 
+table,thead{
+    font-family: Audiowide;
+}
+
+    

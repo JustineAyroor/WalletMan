@@ -1,29 +1,29 @@
 <% include ./partials/header %>
-<center><div class ="container">
-    <div class="row">
-    <form action="/home/<%=currentUser._id%>/new"  method="POST">
-        <div class="form-control">
+<div class ="container" style="width:30%">
+    <br><br><br>
+    <center><h1>Add New Transaction</h1></center>
+    <center><form action="/home/<%=currentUser._id%>/new"  method="POST">
+        <div class="form-group">
             <label for="amount">Amount:</label>
             <input type="number" name="amount" placeholder="Enter Amount" required>
         </div>
         <div class="form-group">
             <label for="SelectCat">Category:</label>
-            <select class="form-control" id="SelectCat" name="category">
+            <select class="form-group" id="SelectCat" name="category">
                 <% for(var i =0; i<categoryList.length; i++){ %>
                     <option value=<%=categoryList[i].name%>> <%=categoryList[i].name %></option>
                <% } %>
             </select>
         </div>
         <div class="form-group">
-            <label for="username">Category:</label>
-            <input type="text" name="username" value=<%=currentUser.username%> >
+            <label for="username">UserName:</label>
+            <input type="text" name="username" value=<%=currentUser.username%> disabled>
         </div>
         <div class="form-group">
             <label for="description">Category:</label>
             <input type="text" name="description" placeholder="description"><br><br>
         </div>
         <button class="btn btn-danger" type="submit">Submit</button>
-    </form>
-    </div>
-</div></center>
+    </form></center>
+</div>
 <% include ./partials/footer %>    

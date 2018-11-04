@@ -3,17 +3,21 @@
     <br><br>
     <center>
     <div class=container>
+        <br>
+    <h1>Add New Category</h1>
     <form action='/home/<%=currentUser._id%>/newCategory' method="POST">
-        <div class="form-control">
+        <div class="form-group">
             <label for=categoryName>Category Name:</label>
             <input type="text" name="categoryName">
         </div>
-        <div>
+        <div style="width:40%">
+            <br>
             <% categoryList.forEach(function(category){%>
             <ul class="list-group">
-              <li class="list-group-item list-group-item-danger"><%=category.name%></li>
+              <li class="list-group-item list-group-item-success"><%=category.name%></li>
             </ul>
             <% }); %>
+            <br><br>
         <div>
         <input class="btn btn-danger" type="submit">
         </form>

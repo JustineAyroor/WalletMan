@@ -107,7 +107,7 @@ app.get('/home/',(req,res)=>{
 // Render home page
 //  $gte : moment().utc().startOf('day').toDate(),
             // $lte : moment().utc().endOf('day').toDate()
-app.get('/home/:id', function(req, res) {
+app.get('/home/:id', middleware.isLoggedIn, function(req, res) {
     Transaction.find({
         'user.id' :req.params.id,
         'date'    : {
@@ -172,7 +172,7 @@ app.get('/home/:id', function(req, res) {
             
 
 // Render form for new transaction
-app.get("/home/:id/new", function(req, res) {
+app.get("/home/:id/new", middleware.isLoggedIn,function(req, res) {
     Category.find({'user.id':req.params.id}, function(err, categoryList) {
         if(err){
             console.log(err);
@@ -183,7 +183,7 @@ app.get("/home/:id/new", function(req, res) {
 });
 
 // Add new transaction
-app.post('/home/:id/new', function(req, res) {
+app.post('/home/:id/new', middleware.isLoggedIn, function(req, res) {
     Category.find({'user.id':req.params.id, 'category.name':req.body.category},function(err,category){
         if(err){
             console.log(err)
@@ -209,7 +209,7 @@ app.post('/home/:id/new', function(req, res) {
 });
 
 // Render page to add new category
-app.get('/home/:id/insertCategory',(req,res)=>{
+app.get('/home/:id/insertCategory', middleware.isLoggedIn, (req,res)=>{
     Category.find({'user.id':req.params.id},function(err, categoryList) {
         if(err){
             console.log(err);
@@ -221,7 +221,7 @@ app.get('/home/:id/insertCategory',(req,res)=>{
 
 
 // Add new category
-app.post('/home/:id/newCategory',(req,res)=>{
+app.post('/home/:id/newCategory', middleware.isLoggedIn,(req,res)=>{
     Category.create({
         'name':req.body.categoryName,
         'user.id':req.params.id
@@ -229,7 +229,7 @@ app.post('/home/:id/newCategory',(req,res)=>{
         if(err){
             res.send(err);
         }else{
-         res.redirect('/home/'+req.params.id);
+         res.redirect('/home/'+req.params.id+"/insertCategory");
         }
     });
 });
@@ -244,60 +244,70 @@ app.get("/home/:id/history",function(req, res) {
                if(err){
                    console.log(err)
                }else{
+                    var categoryNameTodayRaw = [];
+                    var categoryAmountTodayRaw = [];
+                    var categoryDesTodayRaw=[];
+                    var categoryNameYesterdayRaw = [];
+                    var categoryAmountYesterdayRaw = [];
+                    var categoryDesYesterdayRaw=[];
                     var categoryAmount = [];
                     var categoryName = [];
                     var categoryAmountToday = [];
                     var categoryNameToday = [];
                     var categoryAmountYesterday = [];
                     var categoryNameYesterday = [];
-                    var YesterdaysDateISO = moment(moment().subtract(1,'days').toDate(),moment.ISO_8601);
+                    var YesterdaysDateISOend = moment().subtract(1,'days').endOf('days').toISOString();
+                    var TodaysDateISOend = moment().endOf('days').toISOString();
+                    var TodaysDateISOstart = moment().startOf('days').toISOString();
                     
                     for(var i =0;i<categoryList.length;i++){
                         categoryName.push(categoryList[i].name);
                         categoryNameToday.push(categoryList[i].name);
+                        categoryNameYesterday.push(categoryList[i].name);
                         categoryAmount.push(0);
                         categoryAmountToday.push(0);
+                        categoryAmountYesterday.push(0);
                     }
                     
                     for(var trans in transactionList){
                         for(var cat in categoryList){
                             if(transactionList[trans].category.name===categoryList[cat].name){
                                 categoryAmount[cat]+=transactionList[trans].amount;
-                                categoryAmountToday[cat]+=transactionList[trans].amount;
+                             
+                                if((TodaysDateISOend >= moment(transactionList[trans].date).toISOString()) && (moment(transactionList[trans].date).toISOString() > YesterdaysDateISOend)){
+                                    categoryAmountToday[cat]+=transactionList[trans].amount
+                                    categoryAmountTodayRaw.push(transactionList[trans].amount)
+                                    categoryNameTodayRaw.push(transactionList[trans].category.name)
+                                    categoryDesTodayRaw.push(transactionList[trans].description)
+                                }
+                        
+                                if(YesterdaysDateISOend > moment(transactionList[trans].date).toISOString()){
+                                    categoryAmountYesterday[cat] += transactionList[trans].amount
+                                    categoryAmountYesterdayRaw.push(transactionList[trans].amount)
+                                    categoryNameYesterdayRaw.push(transactionList[trans].category.name)
+                                    categoryDesYesterdayRaw.push(transactionList[trans].description)
+                                }
                             }
-                        }
-                        if(transactionList[trans].date === YesterdaysDateISO){
-                            categoryAmountYesterday.push(transactionList[trans].amount)
-                            categoryNameYesterday.push(transactionList[trans].category.name)
                         }
                     }
                     
-                    console.log("Categor Names for Today:"+categoryNameToday)
-                    console.log("Category Amount for Today:"+categoryAmountToday)
+                    for(var i =0;i<categoryNameYesterday.length;i++){
+                        categoryAmountYesterday.push(0)
+                    }
                     
-                    // Transaction.create({
-                    //     'user.id':req.params.id,
-                    //     'date':{
-                    //         $gte : moment().subtract(1,'days').startOf('days').toDate(),
-                    //         $lte : moment().subtract(1,'days').endOf('days').toDate()
-                    //     }
-                    // },function(err, transactionYesterdayList) {
-                    //     if(err){
-                    //         console.log(err)
-                    //     }else{
-                    //         for(var trans in transactionYesterdayList){
-                                   
-                    //         }
-                    //             
-                    //     }
-                    // })
                     res.render('history',{"allTime":transactionList,
                         "categoryAmount":categoryAmount,
                         "categoryName":categoryName,
                         "categoryAmountToday":categoryAmountToday,
                         "categoryNameToday":categoryNameToday,
                         "categoryAmountYesterday":categoryAmountYesterday,
-                        "categoryNameYesterday":categoryNameYesterday
+                        "categoryNameYesterday":categoryNameYesterday,
+                        "categoryAmountTodayRaw":categoryAmountTodayRaw,
+                        "categoryNameTodayRaw":categoryNameTodayRaw,
+                        "categoryDesTodayRaw":categoryDesTodayRaw,
+                        "categoryAmountYesterdayRaw":categoryAmountYesterdayRaw,
+                        "categoryNameYesterdayRaw":categoryNameYesterdayRaw,
+                        "categoryDesYesterdayRaw":categoryDesYesterdayRaw
                     });
                 }
             });

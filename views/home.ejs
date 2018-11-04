@@ -6,33 +6,39 @@
         <div class="container">
             <header class="jumbotron">
                 <div class="container">
-                    <h1>Welcome To WalletMan!</h1>
-                        <p>Track Your Daily Expenses Using this simple Web Application!!!</p>
-                        <p>
+                    <center><h1>Welcome To WalletMan <i class="fas fa-hand-holding-usd"></i></h1></center>
+                        <center><p>Track Your Daily Expenses Using this Web App</p></center>
+                        <center><p>
                             <a class="btn btn-primary btn-large" href="/home/<%=currentUser.id%>/new">Add New Transaction</a>
-                        </p>
-                        <h4>Hello <%=currentUser.username%></h4>
+                        </p></center>
+                        <center><h4 style="color:green">Hello <%=currentUser.username%></h4></center>
                 </div>
             </header>
         </div>
         <div class="row justify-content-md-center">
             <div class="col col-lg-4">
-                1 of 3
-                <h3>Total:<%=totalAmount%></h3>
-                <h3>You spent max on <%=maxCategoryName%> : <%=maxAmount%></h3>
+            <div class="card" style="width: 18rem;">
+              <div class="card-body">
+                <center>
+                <h5 class="card-title">Expenses Summary</h5>
+                <h6 class="card-subtitle mb-2 text-muted">Total</h6>
+                <h5 style= "color: red" class="card-text"><%=totalAmount%></h5>
+                <p>Max Spent On</p>
+                <h5 style= "color: red"><%=maxCategoryName%></h5>
+                <h5 style="color: blue" ><%=maxAmount%></h5>
+                </center>
+              </div>
+            </div>
             </div>
         <div class="col-md-4">
-            Variable width content
             <canvas id="myChart"></canvas>  
         </div>
         <div class="col col-lg-4">
-            3 of 3
-            <br><br>
-            <table style= "border: 2px, margin:25px auto">
-                <tr>
+            <table class="table table-striped" style= "border: 2px, margin:25px auto">
+                <thead class="thead-dark"><tr>
                     <th>Category</th>
                     <th>Amount</th>
-                </tr>
+                </tr></thead>
                 <% transactionList.forEach(function(transaction){ %>
                 <tr>     
                     <td><%=transaction.category.name %></td>

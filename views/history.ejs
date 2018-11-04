@@ -6,9 +6,15 @@
         <div class="container">
             <header class="jumbotron">
                 <div class="container">
-                    <h1>View all Your Transaction History On this Page!!</h1>
-                        <p>Track Your Daily Expenses Using this simple Web Application!!!</p>
-                        <h4>Hello <%=currentUser.username%></h4>
+                    <center><h1>View Transaction History Here <i class="fas fa-money-check-alt"></i></h1></center>
+                        <center><p>Track Your Daily Expenses Using this Web App</p></center>
+                        <center><h4 style="color:green">Hello <%=currentUser.username%></h4></center>
+                        <center><select style="color:red" class="btn btn-Primary" type="button" id="timeSpan" onchange="myFunction()">
+                            <option selected disabled hidden>Choose an option</option>
+                            <option id="Today" value="Today">Today</option>
+                            <option id="Yesterday" value="Yesterday">Yesterday</option>
+                            <option id="All Time" value="All Time">All Time</option>
+                        </select></center>
                 </div>
             </header>
         </div>
@@ -24,57 +30,67 @@
             <!--    TimeLine-->
             <!--  </button>-->
             <!--  <div class="dropdown-menu" aria-labelledby="dropdownMenu2">-->
-            <!--    <button class="dropdown-item" type="button" value="Today">Today</button>-->
-            <!--    <button class="dropdown-item" type="button" value="Yesterday">Yesterday</button>-->
-            <!--    <button class="dropdown-item" type="button" value="All Time">All Time</button>-->
+            <!--    <button class="dropdown-item" type="button" id="Today" value="Today">Today</button>-->
+            <!--    <button class="dropdown-item" type="button" id="Yesterday" value="Yesterday">Yesterday</button>-->
+            <!--    <button class="dropdown-item" type="button" id="All Time" value="All Time">All Time</button>-->
             <!--  </div>-->
             <!--</div>-->
-            <select id="timeSpan" onchange="myFunction()">
-                <option selected disabled hidden>Choose an option</option>
-                <option id="Today" value="Today">Today</option>
-                <option id="Yesterday" value="Yesterday">Yesterday</option>
-                <option id="All Time" value="All Time">All Time</option>
-            </select>
-            <br><br>
             <div id='div1'></div>
             <script>
                 function myFunction(){
                     var x = document.getElementById("timeSpan").value
                     if(x==="Today"){
-                        document.getElementById("div1").innerHTML = `<table class="table table-dark">
-                        <tr>
+                        document.getElementById("div1").innerHTML = `<table class="table table-striped">
+                        <thead class="thead-dark"><tr>
                             <th>Category</th>
+                            <th>Description</th>
                             <th>Amount</th>
-                        </tr> 
-                        <% for(var i = 0; i< categoryNameToday.length; i++){%>
+                        </tr> </thead>
+                        <% for(var i = 0; i < categoryAmountTodayRaw.length; i++){%>
                         <tr>
-                            <td><%=categoryNameToday[i]%></td>
-                            <td><%=categoryAmountToday[i]%></td>
+                            <td><%=categoryNameTodayRaw[i]%></td>
+                            <td><%=categoryDesTodayRaw[i]%></td>
+                            <td><%=categoryAmountTodayRaw[i]%></td>
                         </tr>
                         <% } %>
                         </table>`; 
                         drawForToday();
                     }
-                    if(x==="Yesterday"){
-                        document.getElementById("div1").innerHTML = `<table class="table table-dark">
-                        <tr>
+                    else if(x==="Yesterday"){
+                        document.getElementById("div1").innerHTML = `<table class="table table-striped">
+                        <thead class="thead-dark"><tr>
                             <th>Category</th>
+                            <th>Description</th>
                             <th>Amount</th>
-                        </tr> 
-                        <% for(var i = 0; i< categoryNameToday.length; i++){%>
+                        </tr></thead>
+                        <% for(var i = 0; i< categoryAmountYesterdayRaw.length; i++){%>
                         <tr>
-                            <td><%=categoryNameToday[i]%></td>
-                            <td><%=categoryAmountToday[i]%></td>
+                            <td><%=categoryNameYesterdayRaw[i]%></td>
+                            <td><%=categoryDesTodayRaw[i]%></td>
+                            <td><%=categoryAmountYesterdayRaw[i]%></td>
                         </tr>
                         <% } %>
                         </table>`; 
                         drawForYesterday();
                     }
+                    else if(x==="All Time"){
+                         document.getElementById("div1").innerHTML = `<table class="table table-striped">
+                        <thead class="thead-dark"><tr>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                        </tr></thead> 
+                        <% for(var i = 0; i< allTime.length; i++){%>
+                        <tr>
+                            <td><%=allTime[i].category.name%></td>
+                            <td><%=allTime[i].description%></td>
+                            <td><%=allTime[i].amount%></td>
+                        </tr>
+                        <% } %>
+                        </table>`; 
+                        drawForAll_Time();
+                    }
                 }
-                //alert(document.getElementById("timeSpan").value)
-                // if(document.getElementById("timeSpan").value==="Today"){
-                //     document.write("<table style= 'margin:25px auto'><tr><th>Amount</th><th>Category</th></tr></table>");
-                // }
             </script>
             <br><br>
         </div>
@@ -145,15 +161,15 @@ function drawForYesterday(){
 });
 
 var myLineChart = new Chart(ctx2,{
-    "type":"line",
-    "data":{
-        "labels":[<%=categoryNameYesterday%>],
-        "datasets":[{
-            "label":"My First Dataset",
-            "data":[<%=categoryAmountYesterday%>],
-            "fill":false,
-            "borderColor":"rgb(75, 192, 192)",
-            "lineTension":0.1
+    type:'line',
+    data:{
+        labels:<%- JSON.stringify(categoryNameYesterday)%>,
+        datasets:[{
+            label:"My First Dataset",
+            data:[<%=categoryAmountYesterday%>],
+            fill:false,
+            borderColor:"rgb(75, 192, 192)",
+            lineTension:0.1
         }
     ]},
 });
@@ -182,15 +198,15 @@ function drawForAll_Time(){
 });
 
 var myLineChart = new Chart(ctx2,{
-    "type":"line",
-    "data":{
-        "labels":[<%=categoryName%>],
-        "datasets":[{
-            "label":"My First Dataset",
-            "data":[<%=categoryAmount%>],
-            "fill":false,
-            "borderColor":"rgb(75, 192, 192)",
-            "lineTension":0.1
+    type:"line",
+    data:{
+        labels:<%- JSON.stringify(categoryName)%>,
+        datasets:[{
+            label:"My First Dataset",
+            data:[<%=categoryAmount%>],
+            fill:false,
+            borderColor:"rgb(75, 192, 192)",
+            lineTension:0.1
         }
     ]},
 });
