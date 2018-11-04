@@ -104,7 +104,7 @@ app.get('/home/',(req,res)=>{
 });
 
 // Render home page
-app.get('/home/:id', (req, res) => {
+app.get('/home/:id',middlewareObj.isLoggedIn(), function(req, res) {
     Transaction.find({
         'user.id' :req.params.id,
         'date'    : {$gte:new Date().getMilliseconds()}},
@@ -164,7 +164,7 @@ app.get('/home/:id', (req, res) => {
             
 
 // Render form for new transaction
-app.get("/home/:id/new", function(req, res) {
+app.get("/home/:id/new",middlewareObj.isLoggedIn(), function(req, res) {
     Category.find({'user.id':req.params.id}, function(err, categoryList) {
         if(err){
             console.log(err);
@@ -175,7 +175,7 @@ app.get("/home/:id/new", function(req, res) {
 });
 
 // Add new transaction
-app.post('/home/:id/new', (req, res) => {
+app.post('/home/:id/new', middlewareObj.isLoggedIn(), function(req, res) {
     Category.find({'user.id':req.params.id, 'category.name':req.body.category},function(err,category){
         if(err){
             console.log(err)
@@ -201,7 +201,7 @@ app.post('/home/:id/new', (req, res) => {
 });
 
 // Render page to add new category
-app.get('/home/:id/insertCategory',(req,res)=>{
+app.get('/home/:id/insertCategory',middlewareObj.isLoggedIn(),(req,res)=>{
     Category.find({'user.id':req.params.id},function(err, categoryList) {
         if(err){
             console.log(err);
@@ -213,7 +213,7 @@ app.get('/home/:id/insertCategory',(req,res)=>{
 
 
 // Add new category
-app.post('/home/:id/newCategory',(req,res)=>{
+app.post('/home/:id/newCategory',middlewareObj.isLoggedIn(),(req,res)=>{
     Category.create({
         'name':req.body.categoryName,
         'user.id':req.params.id
